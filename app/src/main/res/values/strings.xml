@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Ringtones</string>
+    <string name="screen_title">Galeria de Ringtones</string>
+    <string name="screen_subtitle">Selecciona uno de los 10 audios disponibles:</string>
+    <string name="status_playing">Reproduciendo: %1$s</string>
+    <string name="status_stopped">Reproduccion detenida</string>
+    <string name="action_play">Reproducir</string>
+    <string name="action_download">Descargar</string>
+    <string name="action_stop_audio">Detener audio</string>
+    <string name="toast_playing">Reproduciendo %1$s</string>
+    <string name="toast_stopped">Audio detenido</string>
+    <string name="toast_download_ok">%1$s descargado en Descargas/RingtonesApp</string>
+    <string name="toast_download_error">No se pudo descargar el audio</string>
+
+    <string name="ringtone_1">Tono 1</string>
+    <string name="ringtone_2">Tono 2</string>
+    <string name="ringtone_3">Tono 3</string>
+    <string name="ringtone_4">Tono 4</string>
+    <string name="ringtone_5">Tono 5</string>
+    <string name="ringtone_6">Tono 6</string>
+    <string name="ringtone_7">Tono 7</string>
+    <string name="ringtone_8">Tono 8</string>
+    <string name="ringtone_9">Tono 9</string>
+    <string name="ringtone_10">Tono 10</string>
+</resources>
