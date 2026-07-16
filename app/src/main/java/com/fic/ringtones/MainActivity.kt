@@ -1,7 +1,10 @@
 package com.fic.ringtones
 
+import android.content.ActivityNotFoundException
 import android.content.ContentValues
+import android.content.Intent
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -10,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.content.FileProvider
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,18 +21,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fic.ringtones.ui.theme.RingtonesTheme
+import java.io.File
 
 class MainActivity : ComponentActivity() {
 
@@ -102,6 +114,42 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun crearUriCompartible(audioResId: Int, fileName: String): Uri? {
+        return try {
+            val shareDir = File(cacheDir, "shared_audio").apply { mkdirs() }
+            val audioFile = File(shareDir, fileName)
+
+            resources.openRawResource(audioResId).use { input ->
+                audioFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            FileProvider.getUriForFile(this, "$packageName.fileprovider", audioFile)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun compartirAudio(audioResId: Int, fileName: String): Boolean {
+        val uri = crearUriCompartible(audioResId, fileName) ?: return false
+
+        return try {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "audio/mpeg"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            startActivity(
+                Intent.createChooser(shareIntent, getString(R.string.chooser_share_title))
+            )
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -146,6 +194,16 @@ class MainActivity : ComponentActivity() {
                         }
                         Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
                     },
+                    onShareClick = { ringtone ->
+                        val shareOk = compartirAudio(ringtone.audioResId, ringtone.fileName)
+                        if (!shareOk) {
+                            Toast.makeText(
+                                this,
+                                getString(R.string.toast_share_error),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
                     onStopClick = {
                         detenerAudio()
                         reproduciendoNombre = null
@@ -184,6 +242,7 @@ fun RingtonesScreen(
     reproduciendoNombre: String?,
     onPlayClick: (RingtoneItem) -> Unit,
     onDownloadClick: (RingtoneItem) -> Unit,
+    onShareClick: (RingtoneItem) -> Unit,
     onStopClick: () -> Unit
 ) {
     Scaffold(
@@ -240,18 +299,34 @@ fun RingtonesScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Button(
+                                FilledIconButton(
                                     onClick = { onPlayClick(ringtone) },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.size(48.dp)
                                 ) {
-                                    Text(stringResource(R.string.action_play))
+                                    Icon(
+                                        imageVector = Icons.Filled.PlayArrow,
+                                        contentDescription = stringResource(R.string.action_play)
+                                    )
                                 }
 
-                                OutlinedButton(
+                                OutlinedIconButton(
                                     onClick = { onDownloadClick(ringtone) },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.size(48.dp)
                                 ) {
-                                    Text(stringResource(R.string.action_download))
+                                    Icon(
+                                        imageVector = Icons.Filled.Download,
+                                        contentDescription = stringResource(R.string.action_download)
+                                    )
+                                }
+
+                                OutlinedIconButton(
+                                    onClick = { onShareClick(ringtone) },
+                                    modifier = Modifier.size(48.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Share,
+                                        contentDescription = stringResource(R.string.action_share)
+                                    )
                                 }
                             }
                         }

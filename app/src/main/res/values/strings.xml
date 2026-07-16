@@ -6,11 +6,14 @@
     <string name="status_stopped">Reproduccion detenida</string>
     <string name="action_play">Reproducir</string>
     <string name="action_download">Descargar</string>
+    <string name="action_share">Compartir</string>
     <string name="action_stop_audio">Detener audio</string>
+    <string name="chooser_share_title">Compartir audio con</string>
     <string name="toast_playing">Reproduciendo %1$s</string>
     <string name="toast_stopped">Audio detenido</string>
     <string name="toast_download_ok">%1$s descargado en Descargas/RingtonesApp</string>
     <string name="toast_download_error">No se pudo descargar el audio</string>
+    <string name="toast_share_error">No se pudo compartir el audio</string>
 
     <string name="ringtone_1">Tono 1</string>
     <string name="ringtone_2">Tono 2</string>
