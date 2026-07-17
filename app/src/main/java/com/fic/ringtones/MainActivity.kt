@@ -353,7 +353,7 @@ fun RingtonesScreen(
                                     modifier = Modifier.size(48.dp)
                                 ) {
                                     Icon(
-                                        painter = painterResource(android.R.drawable.stat_sys_download_done),
+                                        painter = painterResource(R.drawable.ic_download),
                                         contentDescription = stringResource(R.string.action_download)
                                     )
                                 }
