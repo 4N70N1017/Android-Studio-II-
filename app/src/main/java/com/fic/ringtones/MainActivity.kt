@@ -31,22 +31,25 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fic.ringtones.ui.theme.RingtonesTheme
@@ -157,6 +160,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             RingtonesTheme {
                 var reproduciendoNombre by rememberSaveable { mutableStateOf<String?>(null) }
+                var puntosGanados by rememberSaveable { mutableIntStateOf(0) }
+                var mostrarModalPunto by rememberSaveable { mutableStateOf(false) }
 
                 val ringtones = listOf(
                     RingtoneItem(R.string.ringtone_1, R.raw.tono1, "tono1.mp3"),
@@ -196,7 +201,10 @@ class MainActivity : ComponentActivity() {
                     },
                     onShareClick = { ringtone ->
                         val shareOk = compartirAudio(ringtone.audioResId, ringtone.fileName)
-                        if (!shareOk) {
+                        if (shareOk) {
+                            puntosGanados += 1
+                            mostrarModalPunto = true
+                        } else {
                             Toast.makeText(
                                 this,
                                 getString(R.string.toast_share_error),
@@ -204,6 +212,9 @@ class MainActivity : ComponentActivity() {
                             ).show()
                         }
                     },
+                    puntosGanados = puntosGanados,
+                    mostrarModalPunto = mostrarModalPunto,
+                    onDismissPuntoModal = { mostrarModalPunto = false },
                     onStopClick = {
                         detenerAudio()
                         reproduciendoNombre = null
@@ -243,8 +254,36 @@ fun RingtonesScreen(
     onPlayClick: (RingtoneItem) -> Unit,
     onDownloadClick: (RingtoneItem) -> Unit,
     onShareClick: (RingtoneItem) -> Unit,
+    puntosGanados: Int,
+    mostrarModalPunto: Boolean,
+    onDismissPuntoModal: () -> Unit,
     onStopClick: () -> Unit
 ) {
+    if (mostrarModalPunto) {
+        AlertDialog(
+            onDismissRequest = onDismissPuntoModal,
+            title = { Text(stringResource(R.string.dialog_title_point)) },
+            text = {
+                Text(
+                    text = stringResource(
+                        R.string.dialog_message_point,
+                        puntosGanados
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissPuntoModal) {
+                    Text(stringResource(R.string.dialog_action_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissPuntoModal) {
+                    Text(stringResource(R.string.dialog_action_cancel))
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -314,7 +353,7 @@ fun RingtonesScreen(
                                     modifier = Modifier.size(48.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Download,
+                                        painter = painterResource(android.R.drawable.stat_sys_download_done),
                                         contentDescription = stringResource(R.string.action_download)
                                     )
                                 }

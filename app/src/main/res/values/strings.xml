@@ -14,6 +14,10 @@
     <string name="toast_download_ok">%1$s descargado en Descargas/RingtonesApp</string>
     <string name="toast_download_error">No se pudo descargar el audio</string>
     <string name="toast_share_error">No se pudo compartir el audio</string>
+    <string name="dialog_title_point">!Felicidades!</string>
+    <string name="dialog_message_point">Has ganado un punto. Total acumulado: %1$d</string>
+    <string name="dialog_action_ok">Aceptar</string>
+    <string name="dialog_action_cancel">Cancelar</string>
 
     <string name="ringtone_1">Tono 1</string>
     <string name="ringtone_2">Tono 2</string>
